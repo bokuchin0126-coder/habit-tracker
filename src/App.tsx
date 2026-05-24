@@ -1,122 +1,78 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import type { Habit, Record } from "./types"
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    const [habits, setHabits] = useState<Habit[]>([])
+    const [records, setRecords] = useState<Record[]>([])
+    const [inputText, setInputText] = useState<string>("")
+    const [error, setError] = useState<string | null>(null)
+    const today = new Intl.DateTimeFormat("ja-JP", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(new Date())
+    const recordToday = records.find(day => day.date === today)
 
-      <div className="ticks"></div>
+    const handleAddHabits = () => {
+        if (inputText.trim() === "") return 
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        try {
+            setHabits(prev => [...prev, {
+                id: Date.now(),
+                name: inputText
+            }])
+            setRecords(prev => [...prev, {
+                date: today,
+                habitId: Date.now(),
+                completed: false
+            }])
+        } catch {
+            setError("追加出来ませんでした")
+        } finally {
+            setError(null)
+            setInputText("")
+        }
+    }
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    const handleDeleteHabits = (id: number) => {
+        try {
+            setHabits(prev => prev.filter(h => h.id !== id))
+            setRecords(prev => prev.filter(r => r.habitId !== id))
+        } catch {
+            setError("リストの消去に失敗しました")
+        } finally {
+            setError(null)
+        }
+    }
+
+    return (
+        <>
+            <div>
+                <input
+                    value={inputText}
+                    placeholder="リストを追加..."
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            handleAddHabits()
+                        }
+                    }}
+                />
+                {error}
+                <button onClick={handleAddHabits}>追加</button>
+            </div>
+            <div>
+                {habits.map(h => (
+                    <div key={h.id}>
+                        <p>{h.name}</p>
+                        <button onClick={() => handleDeleteHabits(h.id)}>消去</button>
+                    </div>
+                ))}
+            </div>
+        </>
+    )
 }
 
 export default App
