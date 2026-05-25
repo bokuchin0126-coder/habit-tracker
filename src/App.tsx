@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Habit, Record } from "./types"
+import HabitItem from "./HabitItem"
 
 function App() {
 
@@ -17,15 +18,15 @@ function App() {
 
     const handleAddHabits = () => {
         if (inputText.trim() === "") return 
-
+        const id = Date.now()
         try {
             setHabits(prev => [...prev, {
-                id: Date.now(),
+                id: id,
                 name: inputText
             }])
             setRecords(prev => [...prev, {
                 date: today,
-                habitId: Date.now(),
+                habitId: id,
                 completed: false
             }])
         } catch {
@@ -47,6 +48,32 @@ function App() {
         }
     }
 
+    const handleEditHabits = (id: number, text: string) => {
+        if (text.trim() === "" ) return
+
+        try {
+            setHabits(prev => prev.map(h => (
+                h.id === id ? {...h, name: text} : h
+            )))
+        } catch {
+            setError("編集に失敗しました")
+        } finally {
+            setError(null)
+        }
+    }
+
+    const handleToggleHabits = (id: number) => {
+        try {
+            setRecords(prev => prev.map(r => (
+                r.habitId === id ? {...r, completed: !r.completed} : r
+            )))
+        } catch {
+            setError("タグ切り替えに失敗しました")
+        } finally {
+            setError(null)
+        }
+    }
+
     return (
         <>
             <div>
@@ -63,13 +90,22 @@ function App() {
                 {error}
                 <button onClick={handleAddHabits}>追加</button>
             </div>
+            {error}
             <div>
-                {habits.map(h => (
-                    <div key={h.id}>
-                        <p>{h.name}</p>
-                        <button onClick={() => handleDeleteHabits(h.id)}>消去</button>
-                    </div>
-                ))}
+                {habits.map(habit => {
+                    const record = records.find(r => r.habitId === habit.id)
+
+                    return (
+                        <HabitItem
+                            key={habit.id}
+                            habit={habit}
+                            record={record}
+                            onDeleteHabits={handleDeleteHabits}
+                            onEditHabits={handleEditHabits}
+                            onToggleHabits={handleToggleHabits}
+                        />
+                    )
+                })}
             </div>
         </>
     )
