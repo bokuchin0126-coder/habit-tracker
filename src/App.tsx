@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Habit, Record } from "./types"
 import HabitItem from "./HabitItem"
 
 function App() {
 
-    const [habits, setHabits] = useState<Habit[]>([])
-    const [records, setRecords] = useState<Record[]>([])
+    const [habits, setHabits] = useState<Habit[]>(() => {
+        const saved = localStorage.getItem("habits")
+        return saved ? JSON.parse(saved) : []
+    })
+    const [records, setRecords] = useState<Record[]>(() => {
+        const saved = localStorage.getItem("records")
+        return saved ? JSON.parse(saved) : []
+    })
     const [inputText, setInputText] = useState<string>("")
     const [error, setError] = useState<string | null>(null)
     const today = new Intl.DateTimeFormat("ja-JP", {
@@ -15,7 +21,22 @@ function App() {
         day: "2-digit"
     }).format(new Date())
     const recordToday = records.find(day => day.date === today)
-    const [registration, setRegistration] = useState<boolean>(false)
+    const [registration, setRegistration] = useState<boolean>(() => {
+        const saved = localStorage.getItem("registration")
+        return saved ? JSON.parse(saved) : false
+    })
+
+    useEffect(() => {
+        if (registration) localStorage.setItem("habits", JSON.stringify(habits))
+    }, [habits, registration])
+
+    useEffect(() => {
+       if (registration) localStorage.setItem("records", JSON.stringify(records))
+    }, [records, registration])
+
+    useEffect(() => (
+        localStorage.setItem("registration", JSON.stringify(registration))
+    ), [registration])
 
     const handleAddHabits = () => {
         if (inputText.trim() === "") return 
