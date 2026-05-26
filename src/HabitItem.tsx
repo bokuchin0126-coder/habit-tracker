@@ -5,12 +5,13 @@ import { useState } from "react"
 type Props = {
     habit: Habit
     record?: Record
+    registration: boolean
     onDeleteHabits: (id: number) => void
     onEditHabits: (id: number, text: string) => void
     onToggleHabits: (id: number) => void
 }
 
-function HabitItem({habit, record, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
+function HabitItem({habit, record, registration, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
 
     const [editingId, setEditingId] = useState<boolean>(false)
     const [editText, setEditText] = useState<string>(habit.name)
@@ -33,11 +34,15 @@ function HabitItem({habit, record, onDeleteHabits, onEditHabits, onToggleHabits}
                     /> : <div>{habit.name}</div>
                 }
                 
-                {editingId ? 
-                    <button onClick={() => {onEditHabits(habit.id, editText), setEditingId(false)}}>保存</button>:
-                    <button onClick={() => setEditingId(true)}>編集</button>
+                {registration ? "" : 
+                    <div>   
+                        {editingId ? 
+                            <button onClick={() => {onEditHabits(habit.id, editText), setEditingId(false)}}>保存</button>:
+                            <button onClick={() => setEditingId(true)}>編集</button>
+                        }
+                        <button onClick={() => onDeleteHabits(habit.id)}>消去</button>
+                    </div>
                 }
-                <button onClick={() => onDeleteHabits(habit.id)}>消去</button>
             </div>
         </>
     )

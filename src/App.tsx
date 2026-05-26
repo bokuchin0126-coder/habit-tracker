@@ -15,6 +15,7 @@ function App() {
         day: "2-digit"
     }).format(new Date())
     const recordToday = records.find(day => day.date === today)
+    const [registration, setRegistration] = useState<boolean>(false)
 
     const handleAddHabits = () => {
         if (inputText.trim() === "") return 
@@ -76,20 +77,22 @@ function App() {
 
     return (
         <>
-            <div>
-                <input
-                    value={inputText}
-                    placeholder="リストを追加..."
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            handleAddHabits()
-                        }
-                    }}
-                />
-                {error}
-                <button onClick={handleAddHabits}>追加</button>
-            </div>
+            {registration ? "" : 
+                <div>
+                    <input
+                        value={inputText}
+                        placeholder="リストを追加..."
+                        onChange={(e) => setInputText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleAddHabits()
+                            }
+                        }}
+                    />
+                    {error}
+                    <button onClick={handleAddHabits}>追加</button>
+                </div>
+            }
             {error}
             <div>
                 {habits.map(habit => {
@@ -100,6 +103,7 @@ function App() {
                             key={habit.id}
                             habit={habit}
                             record={record}
+                            registration={registration}
                             onDeleteHabits={handleDeleteHabits}
                             onEditHabits={handleEditHabits}
                             onToggleHabits={handleToggleHabits}
@@ -107,6 +111,9 @@ function App() {
                     )
                 })}
             </div>
+            <button onClick={() => setRegistration(!registration)}>
+                {registration ? "変更" : "登録"}
+            </button>
         </>
     )
 }
