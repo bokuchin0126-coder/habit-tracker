@@ -1,17 +1,16 @@
-import type { Habit, Record } from "./types"
+import type { Habit } from "./types"
 import { useState } from "react"
 
 
 type Props = {
     habit: Habit
-    record?: Record
     registration: boolean
     onDeleteHabits: (id: number) => void
     onEditHabits: (id: number, text: string) => void
     onToggleHabits: (id: number) => void
 }
 
-function HabitItem({habit, record, registration, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
+function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
 
     const [editingId, setEditingId] = useState<boolean>(false)
     const [editText, setEditText] = useState<string>(habit.name)
@@ -19,7 +18,7 @@ function HabitItem({habit, record, registration, onDeleteHabits, onEditHabits, o
     return (
         <>
             <div>
-                <button onClick={() => onToggleHabits(habit.id)}>{record?.completed ? "☑" : "□"}</button>
+                {registration ? <button onClick={() => onToggleHabits(habit.id)}>{habit.completed ? "☑" : "□"}</button> : ""}
                 {editingId ?
                     <input
                       value={editText}

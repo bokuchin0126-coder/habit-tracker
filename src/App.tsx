@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react'
-import type { Habit, Record } from "./types"
+import type { Habit, DailyHabit } from "./types"
 import HabitItem from "./HabitItem"
 
 function App() {
 
-    const [habits, setHabits] = useState<Habit[]>(() => {
-        const saved = localStorage.getItem("habits")
+    const [dailyHabits, setDailyHabits] = useState<DailyHabit[]>(() => {
+        const saved = localStorage.getItem("dailyHabits")
         return saved ? JSON.parse(saved) : []
     })
-    const [records, setRecords] = useState<Record[]>(() => {
-        const saved = localStorage.getItem("records")
-        return saved ? JSON.parse(saved) : []
-    })
+    
     const [inputText, setInputText] = useState<string>("")
     const [error, setError] = useState<string | null>(null)
     const today = new Intl.DateTimeFormat("ja-JP", {
@@ -20,49 +17,83 @@ function App() {
         month: "2-digit",
         day: "2-digit"
     }).format(new Date())
-    const recordToday = records.find(day => day.date === today)
-    const [registration, setRegistration] = useState<boolean>(() => {
-        const saved = localStorage.getItem("registration")
-        return saved ? JSON.parse(saved) : false
-    })
+
+    const [selectedDate, setSelectedDate] = useState(today)
+    const currentDate = dailyHabits.find(day => day.date === selectedDate)
+    const currentHabits = currentDate?.habits ?? []
+    const registration = currentDate?.registration ?? false
 
     useEffect(() => {
-        if (registration) localStorage.setItem("habits", JSON.stringify(habits))
-    }, [habits, registration])
+        localStorage.setItem("dailyHabits", JSON.stringify(dailyHabits))
+    }, [dailyHabits])
 
     useEffect(() => {
-       if (registration) localStorage.setItem("records", JSON.stringify(records))
-    }, [records, registration])
+        const registeredOnly = dailyHabits.filter(day => day.registration)
 
-    useEffect(() => (
-        localStorage.setItem("registration", JSON.stringify(registration))
-    ), [registration])
+        localStorage.setItem(
+            "daylyHabits",
+            JSON.stringify(registeredOnly)
+        )
+    }, [])
+
 
     const handleAddHabits = () => {
         if (inputText.trim() === "") return 
-        const id = Date.now()
-        try {
-            setHabits(prev => [...prev, {
-                id: id,
-                name: inputText
-            }])
-            setRecords(prev => [...prev, {
-                date: today,
-                habitId: id,
-                completed: false
-            }])
-        } catch {
-            setError("追加出来ませんでした")
-        } finally {
-            setError(null)
-            setInputText("")
+        if (!currentDate) {
+            try {
+                setDailyHabits(prev => [...prev,{
+                    date: selectedDate,
+                    registration: false,
+                    habits: [{
+                        id: Date.now(),
+                        name: inputText,
+                        completed:false
+                    }]
+                }])
+            } catch {
+                setError("リストの追加に失敗しました")
+            } finally {
+                setError(null)
+                setInputText("")
+            }
+        } else {
+            try {
+                setDailyHabits(prev => prev.map(day => {
+                    if (day.date !== selectedDate) {
+                        return day
+                    }
+                    return {
+                        ...day,
+                        habits: [
+                            ...day.habits,
+                            {
+                                id: Date.now(),
+                                name: inputText,
+                                completed: false
+                            }
+                        ]
+                    }
+                }))
+            } catch {
+                setError("追加出来ませんでした")
+            } finally {
+                setError(null)
+                setInputText("")
+            }
         }
     }
 
     const handleDeleteHabits = (id: number) => {
         try {
-            setHabits(prev => prev.filter(h => h.id !== id))
-            setRecords(prev => prev.filter(r => r.habitId !== id))
+            setDailyHabits(prev => prev.map(day => {
+                if (day.date !== selectedDate) {
+                    return day
+                }
+                return {
+                    ...day,
+                    habits: day.habits.filter(habit => habit.id !== id)
+                }
+            }))
         } catch {
             setError("リストの消去に失敗しました")
         } finally {
@@ -74,9 +105,17 @@ function App() {
         if (text.trim() === "" ) return
 
         try {
-            setHabits(prev => prev.map(h => (
-                h.id === id ? {...h, name: text} : h
-            )))
+            setDailyHabits(prev => prev.map(day => {
+                if (day.date !== selectedDate) {
+                    return day
+                }
+                return {
+                    ...day,
+                    habits: day.habits.map(habit => (
+                        habit.id === id ? {...habit, name: text} : habit
+                    ))
+                }
+            }))
         } catch {
             setError("編集に失敗しました")
         } finally {
@@ -86,9 +125,17 @@ function App() {
 
     const handleToggleHabits = (id: number) => {
         try {
-            setRecords(prev => prev.map(r => (
-                r.habitId === id ? {...r, completed: !r.completed} : r
-            )))
+            setDailyHabits(prev => prev.map(day => {
+                if (day.date !== selectedDate) {
+                    return day
+                }
+                return {
+                    ...day,
+                    habits: day.habits.map(habit => (
+                        habit.id === id ? {...habit, completed: !habit.completed} : habit
+                    ))
+                }
+            }))
         } catch {
             setError("タグ切り替えに失敗しました")
         } finally {
@@ -96,8 +143,43 @@ function App() {
         }
     }
 
+    const handleChangeRegistration = () => {
+        try {
+            setDailyHabits(prev => prev.map(day => {
+                if (day.date !== selectedDate) {
+                    return day
+                }
+                return {
+                    ...day,
+                    registration: !day.registration
+                }
+            }))
+        } catch {
+            setError("登録に失敗しました")
+        } finally {
+            setError(null)
+        }
+    }
+
+    const changeDate = (number: number) => {
+        const date = new Date(selectedDate)
+        date.setDate(date.getDate() + number)
+
+        const formatted = new Intl.DateTimeFormat("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }).format(date)
+        setSelectedDate(formatted)
+    } 
+
     return (
         <>
+            <div>
+                <button onClick={() => changeDate(-1)}>←</button>
+                <h3>{selectedDate}</h3>
+                <button onClick={() => changeDate(+1)}>→</button>
+            </div>
             {registration ? "" : 
                 <div>
                     <input
@@ -116,23 +198,18 @@ function App() {
             }
             {error}
             <div>
-                {habits.map(habit => {
-                    const record = records.find(r => r.habitId === habit.id)
-
-                    return (
+                {currentHabits.map(habit => (
                         <HabitItem
                             key={habit.id}
                             habit={habit}
-                            record={record}
                             registration={registration}
                             onDeleteHabits={handleDeleteHabits}
                             onEditHabits={handleEditHabits}
                             onToggleHabits={handleToggleHabits}
                         />
-                    )
-                })}
+                ))}
             </div>
-            <button onClick={() => setRegistration(!registration)}>
+            <button onClick={handleChangeRegistration}>
                 {registration ? "変更" : "登録"}
             </button>
         </>

@@ -1,10 +1,11 @@
 export type Habit = {
     id: number
     name: string
+    completed: boolean
 }
 
-export type Record = {
+export type DailyHabit = {
     date: string
-    habitId: number
-    completed: boolean
+    registration: boolean
+    habits: Habit[]
 }
