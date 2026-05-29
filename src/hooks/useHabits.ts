@@ -162,6 +162,23 @@ function useHabits() {
         setSelectedDate(formatted)
     } 
 
+    const specifyPeriod = (number: number) => {
+        const targetDate = new Date(selectedDate)
+        targetDate.setDate(targetDate.getDate() - number)
+
+        const filterDays = dailyHabits.filter(day => {
+            const dayDate = new Date(day.date)
+            return dayDate >= targetDate
+        })
+
+        const allHabits = filterDays.flatMap(day => day.habits)
+        const wholeNumber = allHabits.length
+        if (wholeNumber === 0) return 0
+        const completedNumber = allHabits.filter(habit => habit.completed).length
+
+        return Math.floor((completedNumber / wholeNumber) * 100)
+    }
+
     return {
         dailyHabits,
         inputText,
@@ -171,6 +188,7 @@ function useHabits() {
         registration,
         currentHabits,
         changeDate,
+        specifyPeriod,
         handleAddHabits,
         handleDeleteHabits,
         handleToggleHabits,

@@ -12,6 +12,7 @@ function App() {
         registration,
         currentHabits,
         changeDate,
+        specifyPeriod,
         handleAddHabits,
         handleDeleteHabits,
         handleToggleHabits,
@@ -59,6 +60,8 @@ function App() {
             <button onClick={handleChangeRegistration}>
                 {registration ? "変更" : "登録"}
             </button>
+            <p>過去１週間の達成率{specifyPeriod(7)}%</p>
+            <p>過去１か月の達成率{specifyPeriod(30)}%</p>
         </>
     )
 }
