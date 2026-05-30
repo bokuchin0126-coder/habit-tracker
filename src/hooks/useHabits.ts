@@ -162,9 +162,9 @@ function useHabits() {
         setSelectedDate(formatted)
     } 
 
-    const specifyPeriod = (number: number) => {
+    const specifyPeriod = (days: number) => {
         const targetDate = new Date(selectedDate)
-        targetDate.setDate(targetDate.getDate() - number)
+        targetDate.setDate(targetDate.getDate() - days)
 
         const filterDays = dailyHabits.filter(day => {
             const dayDate = new Date(day.date)
