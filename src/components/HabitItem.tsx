@@ -1,6 +1,6 @@
 import type { Habit } from "../types/types"
 import { useState } from "react"
-
+import "../App.css"
 
 type Props = {
     habit: Habit
@@ -17,10 +17,15 @@ function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleH
 
     return (
         <>
-            <div>
-                {registration ? <button onClick={() => onToggleHabits(habit.id)}>{habit.completed ? "☑" : "□"}</button> : ""}
+            <div className="habit-item">
+
+                {registration ? <button className="toggle-button"
+                onClick={() => onToggleHabits(habit.id)}>{habit.completed ? "☑" : "□"}
+                </button> : ""}
+
                 {editingId ?
                     <input
+                      className="edit-input"
                       value={editText}
                       autoFocus
                       onChange={(e) => setEditText(e.target.value)}
@@ -30,16 +35,29 @@ function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleH
                             setEditingId(false)
                         }
                       }}
-                    /> : <div>{habit.name}</div>
+                    /> : 
+                    <div className="habit-name">{habit.name}</div>
                 }
                 
                 {registration ? "" : 
-                    <div>   
+                    <div className="habit-actions">   
                         {editingId ? 
-                            <button onClick={() => {onEditHabits(habit.id, editText), setEditingId(false)}}>保存</button>:
-                            <button onClick={() => setEditingId(true)}>編集</button>
+                            <button className="save-button"
+                            onClick={() => {onEditHabits(habit.id, editText), setEditingId(false)}}>
+                                保存
+                            </button>:
+
+                            <button className="edit-button"
+                            onClick={() => setEditingId(true)}>
+                                編集
+                            </button>
                         }
-                        <button onClick={() => onDeleteHabits(habit.id)}>消去</button>
+
+                        <button className="delete-button"
+                        onClick={() => onDeleteHabits(habit.id)}>
+                            消去
+                        </button>
+
                     </div>
                 }
             </div>
