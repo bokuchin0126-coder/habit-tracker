@@ -4,13 +4,13 @@ import "../App.css"
 
 type Props = {
     habit: Habit
-    registration: boolean
+    currentRegistration: boolean
     onDeleteHabits: (id: number) => void
     onEditHabits: (id: number, text: string) => void
     onToggleHabits: (id: number) => void
 }
 
-function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
+function HabitItem({habit, currentRegistration, onDeleteHabits, onEditHabits, onToggleHabits} : Props) {
 
     const [editingId, setEditingId] = useState<boolean>(false)
     const [editText, setEditText] = useState<string>(habit.name)
@@ -19,7 +19,7 @@ function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleH
         <>
             <div className="habit-item">
 
-                {registration ? <button className="toggle-button"
+                {currentRegistration ? <button className="toggle-button"
                 onClick={() => onToggleHabits(habit.id)}>{habit.completed ? "☑" : "□"}
                 </button> : ""}
 
@@ -39,7 +39,7 @@ function HabitItem({habit, registration, onDeleteHabits, onEditHabits, onToggleH
                     <div className="habit-name">{habit.name}</div>
                 }
                 
-                {registration ? "" : 
+                {currentRegistration ? "" : 
                     <div className="habit-actions">   
                         {editingId ? 
                             <button className="save-button"

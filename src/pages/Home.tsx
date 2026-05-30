@@ -6,9 +6,10 @@ type Props = {
     inputText: string
     setInputText: (text: string) => void
     error: string | null
+    today: string
     selectedDate: string
     changeDate: (number: number) => void
-    registration: boolean
+    currentRegistration: boolean
     currentHabits: Habit[]
     onAddHabits: () => void
     onDeleteHabits: (id: number) => void
@@ -17,18 +18,23 @@ type Props = {
     onChangeRegistration: () => void
 }
 
-function Home({ inputText, setInputText, error, selectedDate, changeDate, registration, currentHabits, onAddHabits,
+function Home({ inputText, setInputText, today, error, selectedDate, changeDate, currentRegistration, currentHabits, onAddHabits,
 onDeleteHabits, onEditHabits, onToggleHabits, onChangeRegistration}: Props) {
+
+    const dayJudgement = today === selectedDate
+
     return (
         <>
           <div className="app">
             <div className="date-nav">
                 <button onClick={() => changeDate(-1)}>←</button>
-                <h3>{selectedDate}</h3>
+                {dayJudgement? 
+                    <p>{today}</p> : <p>{selectedDate}</p>
+                }
                 <button onClick={() => changeDate(+1)}>→</button>
             </div>
 
-            {registration ? "" : 
+            {currentRegistration ? "" : 
                 <div className="input-area">
                     <input
                         className="habit-input"
@@ -52,7 +58,7 @@ onDeleteHabits, onEditHabits, onToggleHabits, onChangeRegistration}: Props) {
                         <HabitItem
                             key={habit.id}
                             habit={habit}
-                            registration={registration}
+                            currentRegistration={currentRegistration}
                             onDeleteHabits={onDeleteHabits}
                             onEditHabits={onEditHabits}
                             onToggleHabits={onToggleHabits}
@@ -61,7 +67,7 @@ onDeleteHabits, onEditHabits, onToggleHabits, onChangeRegistration}: Props) {
             </div>
 
             <button className="mode-button" onClick={onChangeRegistration}>
-                {registration ? "変更" : "登録"}
+                {currentRegistration ? "変更" : "登録"}
             </button>
 
         </div>

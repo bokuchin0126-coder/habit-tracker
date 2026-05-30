@@ -10,11 +10,15 @@ function App() {
         dailyHabits,
         inputText,
         setInputText,
+        today,
         error,
         selectedDate,
-        registration,
+        currentRegistration,
         currentHabits,
         changeDate,
+        totalAchievement,
+        todayAchievement,
+        bestAchievement,
         specifyPeriod,
         handleAddHabits,
         handleDeleteHabits,
@@ -31,10 +35,11 @@ function App() {
                 <Home 
                     inputText={inputText}
                     setInputText={setInputText}
+                    today={today}
                     error={error}
                     selectedDate={selectedDate}
                     changeDate={changeDate}
-                    registration={registration}
+                    currentRegistration={currentRegistration}
                     currentHabits={currentHabits}
                     onAddHabits={handleAddHabits}
                     onDeleteHabits={handleDeleteHabits}
@@ -46,6 +51,9 @@ function App() {
             <Route path="/stats" element={
                 <Stats 
                     specifyPeriod={specifyPeriod}
+                    totalAchievement={totalAchievement}
+                    todayAchievement={todayAchievement}
+                    bestAchievement={bestAchievement}
                 />} />
         </Routes>
 
